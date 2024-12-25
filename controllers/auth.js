@@ -30,7 +30,7 @@ export const register = async (req, res) => {
       lastName,
       email,
       password: passwordHash,
-      picturePath,
+      picturePath: req.file.path,
       friends,
       location,
       occupation,

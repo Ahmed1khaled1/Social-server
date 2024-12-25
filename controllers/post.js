@@ -4,7 +4,8 @@ import User from "../models/User.js";
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, picturePath } = req.body;
+    const { userId, description } = req.body;
+    const picturePath = req.file.path;
     const user = await User.findById(userId);
     const newPost = new Post({
       userId,
@@ -68,6 +69,6 @@ export const likePost = async (req, res) => {
 
     res.status(200).json(updatedPost);
   } catch (err) {
-    res.status(404).json({ message: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
