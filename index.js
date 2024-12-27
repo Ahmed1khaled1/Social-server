@@ -35,11 +35,12 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(
   cors({
     origin: "*",
-    methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"",
+    methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
     allowedHeaders:
       "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   })
-);app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+);
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 /* CLOUDINARY CONFIGURATION */
 cloudinary.config({
