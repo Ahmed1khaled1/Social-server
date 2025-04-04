@@ -4,7 +4,7 @@ import User from "../models/User.js";
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description = "" } = req.body;
+    const { userId, description } = req.body;
     const picturePath = req.file?.path || null;
 
     if (!description && !picturePath) {
