@@ -54,10 +54,6 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "Social App",
-
-
-
-
     public_id: (req, file) => Date.now() + "-" + file.originalname,
   },
 });
@@ -70,29 +66,16 @@ app.post("/auth/register", upload.single("picture"), (req, res, next) => {
   register(req, res, next);
 });
 
-app.post("/posts", verifyToken, (req, res, next) => {
-  if (!req.body.description && !req.file) {
+app.post("/posts", verifyToken, upload.single("picture"), (req, res, next) => {
+  
+  const { description } = req.body;
+  const file = req.file;
+
+  if (!description && !file) {
     return res.status(400).send({ message: "Post content is required." });
   }
-
-  // Proceed based on content type
-  if (req.file) {
-    upload.single("picture")(req, res, (err) => {
-      if (err) {
-        return res.status(500).send({ message: "Error uploading file." });
-      }
-      createPost(req, res, next);
-    });
-  } else if (req.body.description) {
-    // Handle text-only posts
-    createPost(req, res, next);
-  } else {
-    return res.status(400).send({ message: "Invalid post." });
-  }
+  createPost(req, res, next);
 });
-
-
-
 
 /* ROUTES */
 app.use("/auth", authRoutes);
