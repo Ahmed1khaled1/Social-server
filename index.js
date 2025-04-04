@@ -54,10 +54,10 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "Social App",
-<<<<<<< HEAD
-=======
 
->>>>>>> 077a68dbc88fb15da53a123a5b655af88c7e486d
+
+
+
     public_id: (req, file) => Date.now() + "-" + file.originalname,
   },
 });
