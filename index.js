@@ -11,6 +11,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
+import { fileURLToPath } from "url";
 import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/post.js";
 import authRoutes from "./routes/auth.js";
@@ -19,7 +20,8 @@ import postsRoutes from "./routes/posts.js";
 import verifyToken from "./middleware/auth.js";
 
 /* CONFIGURATIONS */
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 dotenv.config();
 
 
@@ -30,7 +32,14 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+    allowedHeaders:
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  })
+);
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 /* CLOUDINARY CONFIGURATION */
@@ -45,7 +54,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "Social App",
-    public_id: (req, file) => `${Date.now()}-${file.originalname}`,
+    public_id: (req, file) => Date.now() + "-" + file.originalname,
   },
 });
 
@@ -57,12 +66,29 @@ app.post("/auth/register", upload.single("picture"), (req, res, next) => {
   register(req, res, next);
 });
 
-app.post("/posts", verifyToken, upload.single("picture"), (req, res, next) => {
-  if (!req.file) {
-    return res.status(400).send({ message: "File upload failed." });
+app.post("/posts", verifyToken, (req, res, next) => {
+  if (!req.body.description && !req.file) {
+    return res.status(400).send({ message: "Post content is required." });
   }
-  createPost(req, res, next);
+
+  // Proceed based on content type
+  if (req.file) {
+    upload.single("picture")(req, res, (err) => {
+      if (err) {
+        return res.status(500).send({ message: "Error uploading file." });
+      }
+      createPost(req, res, next);
+    });
+  } else if (req.body.description) {
+    // Handle text-only posts
+    createPost(req, res, next);
+  } else {
+    return res.status(400).send({ message: "Invalid post." });
+  }
 });
+
+
+
 
 /* ROUTES */
 app.use("/auth", authRoutes);

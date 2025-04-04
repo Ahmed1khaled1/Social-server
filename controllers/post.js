@@ -4,9 +4,20 @@ import User from "../models/User.js";
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description } = req.body;
-    const picturePath = req.file.path;
+    const { userId, description = "" } = req.body;
+    const picturePath = req.file?.path || null;
+
+    if (!description && !picturePath) {
+      return res
+        .status(400)
+        .json({ message: "Post must contain text or an image." });
+    }
+
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
     const newPost = new Post({
       userId,
       firstName: user.firstName,
